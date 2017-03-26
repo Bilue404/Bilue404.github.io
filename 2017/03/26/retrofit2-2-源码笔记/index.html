@@ -1,0 +1,802 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Retrofit 源码笔记记录
+使用
+笔记
+访问逻辑
+简化的逻辑流程
+主要代理的逻辑
+Retrofit
+ServiceMethod
+OKHttpCall
+
+
+
+使用过程12345678910111213//定义访问接口 public interface GitHubService &amp;#123;  @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)  Call&amp;lt;List&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Retrofit2.2 源码笔记">
+<meta property="og:url" content="https://bilue404.github.io/2017/03/26/retrofit2-2-源码笔记/index.html">
+<meta property="og:site_name" content="北陆，向前走">
+<meta property="og:description" content="Retrofit 源码笔记记录
+使用
+笔记
+访问逻辑
+简化的逻辑流程
+主要代理的逻辑
+Retrofit
+ServiceMethod
+OKHttpCall
+
+
+
+使用过程12345678910111213//定义访问接口 public interface GitHubService &amp;#123;  @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)  Call&amp;lt;List&amp;">
+<meta property="og:image" content="https://bilue404.github.io/img/android/retrofit_proxy.png">
+<meta property="og:image" content="https://bilue404.github.io/img/android/retrofit_proxy1.png">
+<meta property="og:updated_time" content="2017-03-26T08:08:45.605Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Retrofit2.2 源码笔记">
+<meta name="twitter:description" content="Retrofit 源码笔记记录
+使用
+笔记
+访问逻辑
+简化的逻辑流程
+主要代理的逻辑
+Retrofit
+ServiceMethod
+OKHttpCall
+
+
+
+使用过程12345678910111213//定义访问接口 public interface GitHubService &amp;#123;  @GET(&quot;users/&amp;#123;user&amp;#125;/repos&quot;)  Call&amp;lt;List&amp;">
+<meta name="twitter:image" content="https://bilue404.github.io/img/android/retrofit_proxy.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://bilue404.github.io/2017/03/26/retrofit2-2-源码笔记/"/>
+
+
+
+
+
+  <title> Retrofit2.2 源码笔记 | 北陆，向前走 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">北陆，向前走</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://bilue404.github.io/2017/03/26/retrofit2-2-源码笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="北陆">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="北陆，向前走">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Retrofit2.2 源码笔记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-26T00:43:14+08:00">
+                2017-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Retrofit-源码笔记记录"><a href="#Retrofit-源码笔记记录" class="headerlink" title="Retrofit 源码笔记记录"></a>Retrofit 源码笔记记录</h1><ul>
+<li><a href="#使用过程">使用</a></li>
+<li><a href="#笔记：">笔记</a><ul>
+<li><a href="#访问逻辑">访问逻辑</a></li>
+<li><a href="#简单流程。">简化的逻辑流程</a></li>
+<li><a href="#代理的逻辑">主要代理的逻辑</a></li>
+<li><a href="#Retrofit">Retrofit</a></li>
+<li><a href="#ServiceMethod">ServiceMethod</a></li>
+<li><a href="#OKHttpCall">OKHttpCall</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="使用过程"><a href="#使用过程" class="headerlink" title="使用过程"></a>使用过程</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//定义访问接口 </span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</div><div class="line">  <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</div><div class="line">  Call&lt;List&lt;Repo&gt;&gt; listRepos(<span class="meta">@Path</span>(<span class="string">"user"</span>) String user);</div><div class="line">&#125;</div><div class="line"><span class="comment">//初始化Retrofit的配置</span></div><div class="line">Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">    .baseUrl(<span class="string">"https://api.github.com/"</span>)</div><div class="line">    .build();</div><div class="line"><span class="comment">//create生成接口的空实现类</span></div><div class="line">GitHubService service = retrofit.create(GitHubService.class);</div><div class="line"><span class="comment">//执行返回最终的执行类</span></div><div class="line">Call&lt;List&lt;Repo&gt;&gt; repos = service.listRepos(<span class="string">"octocat"</span>);</div></pre></td></tr></table></figure>
+<h3 id="笔记："><a href="#笔记：" class="headerlink" title="笔记："></a>笔记：</h3><ul>
+<li><h4 id="访问逻辑"><a href="#访问逻辑" class="headerlink" title="访问逻辑"></a>访问逻辑</h4><ul>
+<li>Android端的逻辑<ul>
+<li>初始化retrofit，初始化android的adapter (ExecutorCallAdapterFactory),数据格式解析器等。 </li>
+<li>动态代理create返回一个空实现的ApiServices,</li>
+<li>代理ApiServices的方法，当运行到的时候,根据方法的属性，生成一个ServiceMethod。初始化一个okhttpCall。 用serviceMethod根据returnType去所有adapterFactories列表里面找出当前需要的设配器ExecutorCallAdapterFactory/RxJavaCallAdapterFactory/等,并将okhttpCall适配成Call(ExecutorCallbackCall)/Observable(有多个)/等其他的</li>
+<li>开始访问数据enqueue/ExecutorCallbackCall(里面代理了okhttpcall)将数据通过数据解析器的requestConverter生成okhttp.request请求,并返回,再通过数据解析器的responseConverter将response解析成需要的数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><h4 id="简单流程。"><a href="#简单流程。" class="headerlink" title="简单流程。"></a>简单流程。</h4><ul>
+<li><p>初始化Retrofit 将可配置项配置完整。 初始化平台相关的回调执行者。比如android的enqueue的话就是异步操作，然后在主线程返回。 之类的一些初始化操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Handler(Looper.getMainLooper()).post(r)</div></pre></td></tr></table></figure>
+</li>
+<li><p>通过<strong>create(Class clz)</strong> 方法 使用动态代理生成一个访问接口<strong>GitHubService</strong> 的 空实现类。</p>
+</li>
+<li><p>此时动态代理已经代理了 <strong>GitHubService</strong> 的方法。 调用<strong>listRepos(“”)</strong>方法时动态代理会根据这个方法的 注解<strong>@GET(“users/{user}/repos”)</strong>，方法参数<strong>@Path(“user”)</strong>，返回类型<strong>Call</strong>。转化为请求所需要的数据， 并返回一个  实际的<strong>Call</strong>或者其他的<strong>Observable</strong>等之类的对象。 </p>
+</li>
+<li><p>整个流程 翻译成最简单的 逻辑为： <img src="/img/android/retrofit_proxy.png" alt="proxy"></p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><h4 id="代理的逻辑"><a href="#代理的逻辑" class="headerlink" title="代理的逻辑"></a>代理的逻辑</h4><p><img src="/img/android/retrofit_proxy1.png" alt="proxy1"></p>
+<ul>
+<li><p>如果是Object的方法  比如.hashCode()之类的。 就直接返回了原来的逻辑。</p>
+</li>
+<li><p>因为Retrofit 是Java/Android 的请求封装库，所以有Platform这个平台类，并根据平台出来。</p>
+</li>
+<li><p><strong>ServiceMethod</strong> 代表每一个正在运行中的方法。会先去缓存中拿，如果没有。就根据Retrofit中的<strong>baseUrl</strong>等配置项跟当前<strong>method</strong>的注解,参数等生成请求时需要的参数。所以注解基本都是在<strong>ServiceMethod</strong>里面操作</p>
+</li>
+<li><p>根据serviceMethod里面的请求地址，类型， 参数。既可以new一个网络执行类<strong>OkHttpCall</strong>。这是Retrofit封装的一个Call，里面实际就是在操作<strong>okhttp</strong>的okhttp3.Call</p>
+</li>
+<li><p>因为最终有可能是返回<strong>Call</strong>或<strong>Observable</strong>，所有需要会有一个<strong>adapterFactories</strong>的列表，serviceMethod 根据<strong>returnType</strong>去这个设配器列表中取出某一个设配器，执行适配方法将Call 适配成returnType 所需要的Call/Observable/或者是其他的。 </p>
+<ul>
+<li><p>注 最后两个有点绕。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//因为servicesMethod 里面有请求的地址，方法，参数等。 所以需要serviceMethod的数据去生成一个网络执行者出来。  </span></div><div class="line">OkHttpCall&lt;Object&gt; okHttpCall = <span class="keyword">new</span> OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line"><span class="comment">//又因为serviceMethod里面有返回的类型， 所以又需要将call 去serviceMethod里面适配一次</span></div><div class="line"> serviceMethod.callAdapter.adapt(okHttpCall);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="Retrofit"><a href="#Retrofit" class="headerlink" title="Retrofit"></a>Retrofit</h4><ul>
+<li>这里是个门面模式 只需要知道可配置的项的作用即可<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//用户配置的okHttpClient，若没有配置则会默认new okHttpClient</span></div><div class="line"><span class="keyword">final</span> okhttp3.Call.Factory callFactory;</div><div class="line"><span class="keyword">final</span> HttpUrl baseUrl; </div><div class="line"><span class="comment">//数据解析器 用于解析Gson，Xml，Protobuf 等，里面会有responseBodyConverter，返回数据的解析，以及requestBodyConverter，提交参数的转化</span></div><div class="line"><span class="keyword">final</span> List&lt;Converter.Factory&gt; converterFactories;</div><div class="line"></div><div class="line"><span class="comment">//自定义Call的设配器,用于将OkHttpCall解析成需要的执行者,每一个PlatForm 都有对应一个 adapterFactor 将执行者Call适配成 android 的Call 或者 RxJava的Observable。这里Android会默认生产一个 ExecutorCallAdapterFactory</span></div><div class="line"><span class="keyword">final</span> List&lt;CallAdapter.Factory&gt; adapterFactories;</div><div class="line"></div><div class="line"><span class="comment">//自定义的executor，若无配置，则每个platform有一个默认的， 比如android的Ececutor 为 </span></div><div class="line"><span class="comment">//  static class MainThreadExecutor implements Executor &#123;</span></div><div class="line"><span class="comment">//      private final Handler handler = new Handler(Looper.getMainLooper());</span></div><div class="line"><span class="comment">//      @Override public void execute(Runnable r) &#123;</span></div><div class="line"><span class="comment">//        handler.post(r);</span></div><div class="line"><span class="comment">//      &#125;</span></div><div class="line"><span class="comment">//    &#125;</span></div><div class="line"><span class="keyword">final</span> Executor callbackExecutor;</div><div class="line"></div><div class="line"><span class="comment">//是否提前将方法解析成serviceMethod。true的时候在create()的时候就都解析到缓存中了。 false 的时候则是运行 接口的方法的时候在解析。</span></div><div class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> validateEagerly; ServiceMethod</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h4 id="ServiceMethod"><a href="#ServiceMethod" class="headerlink" title="ServiceMethod"></a>ServiceMethod</h4><ul>
+<li><p>每一个Api的 接口 都会对应一个 serviceMethod，在里面解析 当前method的 注解，参数，返回类型。</p>
+<ul>
+<li><h5 id="build初始化解析"><a href="#build初始化解析" class="headerlink" title="build初始化解析"></a>build初始化解析</h5>  这里的逻辑是先在解析器列表中取出当前需要的解析器，然后解析当前的访问形式GET.POST….取出参数然后使用<strong>Converter.Factory</strong> 里面的<strong>requestBodyConverter</strong>去将参数解析成需要的类型比如Json，Xml等。将数据初始化在ParameterHandler的列表中 </li>
+</ul>
+<ul>
+<li><h5 id="方法toRequest-Object…-args"><a href="#方法toRequest-Object…-args" class="headerlink" title="方法toRequest(Object… args)"></a>方法<strong>toRequest(Object… args)</strong></h5><p>  根据每一个参数去<strong>ParameterHandler</strong>列表(这个用的是策略模式，分别有Header，body，query，RelativeUrl等的ParameterHandler解析器）。将解析完的数据放到RequestBuilder中。最终requestBuild去build出<strong>Okhttp.Request</strong>。           </p>
+</li>
+<li><h5 id="方法toResponse-ResponseBody-body"><a href="#方法toResponse-ResponseBody-body" class="headerlink" title="方法toResponse(ResponseBody body)"></a>方法<strong>toResponse(ResponseBody body)</strong></h5><p>将OKhttp的ResponseBody 通过用户配置的<strong>Converter.Factory</strong> 里面的<strong>Converter.Factory</strong> 将数据解析成泛型Bean。比如Gson的解析器为GsonResponseBodyConverter</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="OKHttpCall"><a href="#OKHttpCall" class="headerlink" title="OKHttpCall"></a><strong>OKHttpCall</strong></h4><ul>
+<li>retrofit封装的一个call ，用于直接去操作okhttpCall<ul>
+<li>里面的逻辑就是直接去根据serviceMethod拿到的request以及外面配置进来（或者默认生生成）的okhttpclient，去生成一个okhttpcall，请求完会先对response做一次简单处理，然后直接交给serviceMethod里面去处理返回需要的对象。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="北陆" />
+          <p class="site-author-name" itemprop="name">北陆</p>
+           
+              <p class="site-description motion-element" itemprop="description">跟着他，一起去，失败。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Retrofit-源码笔记记录"><span class="nav-number">1.</span> <span class="nav-text">Retrofit 源码笔记记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用过程"><span class="nav-number">1.0.1.</span> <span class="nav-text">使用过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#笔记："><span class="nav-number">1.0.2.</span> <span class="nav-text">笔记：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#访问逻辑"><span class="nav-number">1.0.2.1.</span> <span class="nav-text">访问逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#简单流程。"><span class="nav-number">1.0.2.2.</span> <span class="nav-text">简单流程。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代理的逻辑"><span class="nav-number">1.0.2.3.</span> <span class="nav-text">代理的逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Retrofit"><span class="nav-number">1.0.2.4.</span> <span class="nav-text">Retrofit</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ServiceMethod"><span class="nav-number">1.0.2.5.</span> <span class="nav-text">ServiceMethod</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#build初始化解析"><span class="nav-number">1.0.2.5.1.</span> <span class="nav-text">build初始化解析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方法toRequest-Object…-args"><span class="nav-number">1.0.2.5.2.</span> <span class="nav-text">方法toRequest(Object… args)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方法toResponse-ResponseBody-body"><span class="nav-number">1.0.2.5.3.</span> <span class="nav-text">方法toResponse(ResponseBody body)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OKHttpCall"><span class="nav-number">1.0.2.6.</span> <span class="nav-text">OKHttpCall</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">北陆</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
