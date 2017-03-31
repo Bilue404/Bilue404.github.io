@@ -87,15 +87,73 @@
 
 
 
-<meta name="description" content="跟着他，一起去，失败。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="北陆，向前走">
-<meta property="og:url" content="https://bilue404.github.io/index.html">
+<meta name="description" content="JAVA GC 笔记
+《深入理解java虚拟机第二版》GC章笔记记录
+主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
+Jvm内存模型
+jvm内存模型借用深入理解java虚拟机第2版 的图。
+
+方法区：
+虚拟机栈：
+堆：
+本地方法栈：
+程序计数器：
+
+
+GC的定义
+GC 是清理堆空间和方法区的垃圾。 
+堆
+垃圾清理一般由两个过程（标记垃圾-清理垃圾）
+
+标记垃圾 （有两种做法）
+引用计数法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GC 笔记">
+<meta property="og:url" content="https://bilue404.github.io/2017/03/31/GC-笔记/index.html">
 <meta property="og:site_name" content="北陆，向前走">
-<meta property="og:description" content="跟着他，一起去，失败。">
+<meta property="og:description" content="JAVA GC 笔记
+《深入理解java虚拟机第二版》GC章笔记记录
+主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
+Jvm内存模型
+jvm内存模型借用深入理解java虚拟机第2版 的图。
+
+方法区：
+虚拟机栈：
+堆：
+本地方法栈：
+程序计数器：
+
+
+GC的定义
+GC 是清理堆空间和方法区的垃圾。 
+堆
+垃圾清理一般由两个过程（标记垃圾-清理垃圾）
+
+标记垃圾 （有两种做法）
+引用计数法">
+<meta property="og:updated_time" content="2017-03-31T14:02:00.324Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="北陆，向前走">
-<meta name="twitter:description" content="跟着他，一起去，失败。">
+<meta name="twitter:title" content="GC 笔记">
+<meta name="twitter:description" content="JAVA GC 笔记
+《深入理解java虚拟机第二版》GC章笔记记录
+主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
+Jvm内存模型
+jvm内存模型借用深入理解java虚拟机第2版 的图。
+
+方法区：
+虚拟机栈：
+堆：
+本地方法栈：
+程序计数器：
+
+
+GC的定义
+GC 是清理堆空间和方法区的垃圾。 
+堆
+垃圾清理一般由两个过程（标记垃圾-清理垃圾）
+
+标记垃圾 （有两种做法）
+引用计数法">
 
 
 
@@ -123,13 +181,13 @@
 
 
 
-  <link rel="canonical" href="https://bilue404.github.io/"/>
+  <link rel="canonical" href="https://bilue404.github.io/2017/03/31/GC-笔记/"/>
 
 
 
 
 
-  <title> 北陆，向前走 </title>
+  <title> GC 笔记 | 北陆，向前走 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -164,9 +222,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -259,9 +315,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -291,10 +347,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2017/03/31/GC-笔记/" itemprop="url">
-                  GC 笔记
-                </a>
+                GC 笔记
               
             
           </h1>
@@ -345,54 +398,140 @@
       
 
       
+        <p>JAVA GC 笔记</p>
+<p>《深入理解java虚拟机第二版》GC章笔记记录</p>
+<p>主要是对GC算法的笔记，暂时简单带过内存JVM内存模型</p>
+<p>Jvm内存模型</p>
+<p>jvm内存模型借用深入理解java虚拟机第2版 的图。</p>
+<ul>
+<li>方法区：</li>
+<li>虚拟机栈：</li>
+<li>堆：</li>
+<li>本地方法栈：</li>
+<li>程序计数器：</li>
+</ul>
+<hr>
+<p>GC的定义</p>
+<p>GC 是清理堆空间和方法区的垃圾。 </p>
+<p>堆</p>
+<p>垃圾清理一般由两个过程（标记垃圾-清理垃圾）</p>
+<ul>
+<li>标记垃圾 （有两种做法）<ul>
+<li>引用计数法<ul>
+<li>对象里面加一个计数器，每被引用一次就会+1，效率高，但是会出现循环引用无法回收的情况，比如A引用了B ，B又引用了A。 </li>
+</ul>
+</li>
+<li>可达性分析算法<ul>
+<li>从GCRoot开始遍历，被引用到的节点即都是有存活的对象。没引用到的就属于垃圾</li>
+<li>可以作为GC Roots 的对象有以下几个<ol>
+<li>虚拟机栈中引用到的对象。</li>
+<li>方法区中的静态变量引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+<li>本地方法栈中引用的对象 （Native对象）</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>清除垃圾算法 （四种做法）</p>
+<ol>
+<li>标记-清除    （效率不高，空间碎片）</li>
+<li>复制算法  （效率高，但是会浪费一半的空间）</li>
+<li>标记-整理 （不会出现空间碎片的情况）</li>
+<li>分代收集算法 [新生代GC(minor GC), 老年代GC(Full Gc/Major GC)]</li>
+</ol>
+<ul>
+<li>标记清除    <ul>
+<li>先标记垃圾， 然后直接清除垃圾 。<br>缺点：效率低，会导致出现内存空间碎片，然后new对象申请空间不足，再次GC</li>
+</ul>
+</li>
+<li>复制算法<ul>
+<li>优化标记-清除的效率问题， 复制算法，将内存划分为等量大小块，每次只用一块，GC的时候，把对象迁移到空闲块内存，然后清除原来的一块。<br>缺点：内存浪费一半，由于大部分对象生命周期短，所以可以抽出一个eden去用于缓存，比如新生代的Eden区和两个survival区的比例是8:1:1</li>
+</ul>
+</li>
+<li>标记-整理<ul>
+<li>如果复制算法的时候，对象存活较久，无法回收的话， 会导致需要经常复制太多的对象，影响效率，而且浪费空间。所以有了标记整理算法。先标记 然后再 把有用对象都移动到一起，再清理其他无用对象。</li>
+</ul>
+</li>
+<li>分代算法<ul>
+<li>由于对象的生命周期不同，有的很短，有的很长，所以有了分代算法的思想。分为新生代和老年代默认空间比例为1：2<ul>
+<li>新生代<ul>
+<li>新生代存放的是新建的对象以及小对象<br>新生代分为三个区 Eden区,Survival from, Survival to 区。比例为8:1:1。<br>new对象的时候，对象先判断eden去是否够放，不够的话则是大对象，直接进入老年代。<br>够放则先放入eden区。新生代GC的时候，eden区和from区中有用对象会直接去到to区。其他的清理。 然后from和to区交换角色。 对象经过多次清理无法清除之后，直接进入老年代（一般是15次）。一般这个时候eden区大部分对象会被清除，剩下的或进入to区或被清除。<br>注意：<ol>
+<li>新生代太小，会导致太多对象去到老年代。过早引起老年代的GC。</li>
+<li>新生代太大， 会导致新生代中复制时间加长。效率降低。 所以需要一个比较合适的大小</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>老年代<ul>
+<li>老年代中的对象都是大对象或者生命周期长的对象。<br>一般老年代的GC会浪费很多的时间，老年代一般的清理算法大部分是标记-整理或者标记-清理<br>如果老年代中有一个card table 用于记录老年代中对新生代中的引用。所以当新生代GC的时候，可以会先查询card table中是否被引用到。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>垃圾清理收集器</p>
+<ul>
+<li>垃圾收集器是清理算法的具体实现。简单可以分为 串行，并行，并发</li>
+<li>GC的时候都会Stop The World所以收集器是对暂停时间的优化。</li>
+</ul>
+<ol>
+<li>串行收集器<ol>
+<li>Serial 最基本、历史最悠久的收集器。 新生代收集器  采用复制算法</li>
+<li>SerialOld 老年代收集器  。 标记 - 整理算法 （作为cms的后备使用）</li>
+</ol>
+</li>
+<li>并行收集器(指的是GC处理过程的并行)<ol>
+<li>ParNew Serial的多线程版本  复制算法</li>
+<li>ParallelScavenge     吞吐量优先收集器   复制算法</li>
+<li>ParallelOld 简单理解SerialOld的并发版本  标记 - 整理算法</li>
+</ol>
+</li>
+<li>并发收集器(指的是程序运行，和GC处理一起运行)<ol>
+<li>CMS <pre><code>使用两次短时间的暂停来代替串行或者并行的暂停
+</code></pre><ol>
+<li>初始标记， 第一次标记 会Stop The World</li>
+<li>并发标记     后台并发标记垃圾 不会暂停</li>
+<li>重新标记     清理之前的最终确定标记 会  Stop The World</li>
+<li>并发清理      后台并发清理，由于是并发清理，所以只能采用标记-清理算法， 所以会有内存碎片。如果碎片过多，无法再生成对象，则使用SerialOld收集器用标记 - 整理清理</li>
+<li>并发重置     重置CMS收集器的数据结构，等待下一次垃圾回收。</li>
+</ol>
+</li>
+<li>GarbageFirst<ol>
+<li>G1一个新的垃圾回收器，目标是替换cms，既可以回收新生代也可以回收老年代<br>简单理解就是G1和其他的收集器不同，G1的收集器的内存平均离散分为多个区域。收集的阶段，G1会把有用的对象拷贝一份到其他区域。然后将原区域清理，这样既可以并发，又可以使用标记-整理算法</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
         
-          
-          JAVA GC 笔记
-《深入理解java虚拟机第二版》GC章笔记记录
-主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
-Jvm内存模型
-jvm内存模型借用深入理解java虚拟机第2版 的图。
 
-方法区：
-虚拟机栈：
-堆：
-本地方法栈：
-程序计数器：
+      
+    </div>
 
-
-GC的定义
-GC 是清理堆空间和方法区的垃圾。 
-堆
-垃圾清理一般由两个过程（标记垃圾-清理垃圾）
-
-标记垃圾 （有两种做法）
-引用计数法
-对象里面加一个计数器，每被引用一次就会+1，效率高，但是会出现循环引用无法回收的情况，比如A引用了B ，B又引用了A。 
-
-
-可达性分析算法
-从GCRoot开始遍历，被引用到的节点即都是有存活的对象。
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/03/31/GC-笔记/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
-      
-    </div>
-
-    <div>
       
     </div>
 
@@ -400,182 +539,38 @@ GC 是清理堆空间和方法区的垃圾。
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://bilue404.github.io/2017/03/26/retrofit2-2-源码笔记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="北陆">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="北陆，向前走">
-    </span>
-
-    
-      <header class="post-header">
-
         
-        
-          <h1 class="post-title" itemprop="name headline">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/03/26/retrofit2-2-源码笔记/" rel="next" title="Retrofit2.2 源码笔记">
+                <i class="fa fa-chevron-left"></i> Retrofit2.2 源码笔记
+              </a>
             
-              
-                
-                <a class="post-title-link" href="/2017/03/26/retrofit2-2-源码笔记/" itemprop="url">
-                  Retrofit2.2 源码笔记
-                </a>
-              
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-26T00:43:14+08:00">
-                2017-03-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android/" itemprop="url" rel="index">
-                    <span itemprop="name">Android</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-          Retrofit 源码笔记记录
-使用
-笔记
-访问逻辑
-简化的逻辑流程
-主要代理的逻辑
-Retrofit
-ServiceMethod
-OKHttpCall
-
-
-
-使用过程12345678910111213//定义访问接口 public interface GitHubService &#123;  @GET("users/&#123;user&#125;/repos")  Call&lt;List&lt;Repo&gt;&gt; listRepos(@Path("user") String user);&#125;//初始化Retrofit的配置Retrofit retrofit = new R
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/03/26/retrofit2-2-源码笔记/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -583,6 +578,10 @@ OKHttpCall
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -763,6 +762,10 @@ OKHttpCall
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
 
   
 
