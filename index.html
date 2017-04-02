@@ -293,7 +293,7 @@
               
                 
                 <a class="post-title-link" href="/2017/03/31/GC-笔记/" itemprop="url">
-                  GC 笔记
+                  JAVA GC 笔记
                 </a>
               
             
@@ -309,7 +309,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-31T22:00:34+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-31T22:30:12+08:00">
                 2017-03-31
               </time>
             
@@ -319,6 +319,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -347,31 +369,32 @@
       
         
           
-          JAVA GC 笔记
-《深入理解java虚拟机第二版》GC章笔记记录
-主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
+          JAVA GC 笔记《深入理解java虚拟机第二版》GC章笔记记录
+
 Jvm内存模型
-jvm内存模型借用深入理解java虚拟机第2版 的图。
-
-方法区：
-虚拟机栈：
-堆：
-本地方法栈：
-程序计数器：
-
-
-GC的定义
-GC 是清理堆空间和方法区的垃圾。 
+方法区
+虚拟机栈
 堆
-垃圾清理一般由两个过程（标记垃圾-清理垃圾）
-
-标记垃圾 （有两种做法）
-引用计数法
-对象里面加一个计数器，每被引用一次就会+1，效率高，但是会出现循环引用无法回收的情况，比如A引用了B ，B又引用了A。 
+本地方法栈
+程序计数器
 
 
-可达性分析算法
-从GCRoot开始遍历，被引用到的节点即都是有存活的对象。
+GC处理
+堆的回收
+标记垃圾
+清理垃圾
+垃圾收集器
+
+
+方法区的回收
+
+
+
+Jvm内存模型(运行时数据区)主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
+jvm内存模型借用深入理解java虚拟机第2版 的图。 
+
+方法区：  线程共享，有人称”永久代”,储存被加载的类信息，常量，静态变量，即时编译后的代码等。包含运行时常量池    
+虚拟机栈：  线程私有，一个线程对应一个栈。每个方法执行的时候都会创建一个栈帧，里面有局部变量表(基本类型，对象引用)，
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -629,7 +652,7 @@ OKHttpCall
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
