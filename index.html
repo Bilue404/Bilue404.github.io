@@ -370,19 +370,40 @@
       
         
           
-          关于ShadowSocks 的笔记关于ShadowSocks http/socks5/socks4区别http​    代理之后， 只代理HTTP的请求，其他所有的FTP，SMTP之类的均不代理
-socks4/socks5​    socks ： socket 的简写
-​    直接代理传输层的数据， 无所谓http，ftp之类的协议，理论上当前http的底层传输协议就是 TCP （由socket实现）所以，只要是经过传输层的数据都可以代理。这就是 socks代理 可以代理    http的原因。
-​    sock4 ： 只支持 tcp
-​    sock5 ：比sock4多了 鉴定、IPv
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/09/28/关于ShadowSocks 的笔记/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+            <h1 id="关于ShadowSocks-的笔记"><a href="#关于ShadowSocks-的笔记" class="headerlink" title="关于ShadowSocks 的笔记"></a>关于ShadowSocks 的笔记</h1><h2 id="关于ShadowSocks-http-socks5-socks4区别"><a href="#关于ShadowSocks-http-socks5-socks4区别" class="headerlink" title="关于ShadowSocks http/socks5/socks4区别"></a>关于ShadowSocks http/socks5/socks4区别</h2><h3 id="http"><a href="#http" class="headerlink" title="http"></a>http</h3><p>​    代理之后， 只代理HTTP的请求，其他所有的FTP，SMTP之类的均不代理</p>
+<h3 id="socks4-socks5"><a href="#socks4-socks5" class="headerlink" title="socks4/socks5"></a>socks4/socks5</h3><p>​    <strong>socks ： socket 的简写</strong></p>
+<p>​    直接代理传输层的数据， 无所谓http，ftp之类的协议，理论上当前http的底层传输协议就是 TCP （由socket实现）所以，只要是经过传输层的数据都可以代理。这就是 socks代理 可以代理    http的原因。</p>
+<p>​    sock4 ： 只支持 tcp</p>
+<p>​    sock5 ：比sock4多了 鉴定、IPv6、UDP支持</p>
+<h3 id="Q"><a href="#Q" class="headerlink" title="Q :"></a>Q :</h3><h3 id="为什么有一些软件不支持ss代理"><a href="#为什么有一些软件不支持ss代理" class="headerlink" title="为什么有一些软件不支持ss代理"></a>为什么有一些软件不支持ss代理</h3><h3 id="如Terminal-里面的。curl-wget／git-之类的工具不支持-ss-代理"><a href="#如Terminal-里面的。curl-wget／git-之类的工具不支持-ss-代理" class="headerlink" title="如Terminal  里面的。curl / wget／git 之类的工具不支持 ss 代理"></a>如Terminal  里面的。curl / wget／git 之类的工具不支持 ss 代理</h3><h3 id="A"><a href="#A" class="headerlink" title="A:"></a>A:</h3><ul>
+<li><p>理论上 设置了之后 系统默认的代理就是ss了。 浏览器默认不代理， 于是我们 浏览器(chrome )安装了插件 (SwitchyOmega)并将浏览器的请求设置了系统代理，于是就可以代理了，</p>
+</li>
+<li><p>所以， terminal 中的工具 1.本来就没做代理的设置 2.作为命令行的工具是不走系统代理的。 只需要手动设置terminal走 ss代理，即可实现里面的工具也走ss代理。 </p>
+<ul>
+<li><p><strong>设置方法一（只对当前 终端有效）</strong></p>
+<p>两句二选一。 就是 protocol://localhost:port</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">export ALL_PROXY=socks5://127.0.0.1:1080</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</div><div class="line">export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p><strong>设置方法二 (以后都有效)</strong></p>
+<p>把上面两句添加到 环境变量中  ~/.bash_profile  </p>
+<p>并 执行  source ~/.bash_profile   让它立即生效</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>设置方法三（此方法和shadowsocks 并没有关系）</strong></p>
+<p>  使用ProxyChains。 但是原理大同小异。 也是为了让底层工具的网络请求走 我们所设置的代理</p>
+<p>  核心可以看 <a href="https://zorro.im/proxychains/" target="_blank" rel="external">ProxyChains 及其原理</a></p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">其核心就是利用了 LD_PRELOAD 这个环境变量（Mac 上是 DYLD_INSERT_LIBRARIES）。</div><div class="line"></div><div class="line">在 Unix 系统中，如果设置了 LD_PRELOAD 环境变量，那么在程序运行时，动态链接器会先加载该环境变量所指定的动态库。也就是说，这个动态库的加载优先于任何其它的库，包括 libc。</div><div class="line"></div><div class="line">ProxyChains 创建了一个叫 libproxychains4.so（Mac 上是 libproxychains4.dylib）的动态库。里面重写了 connect、close 以及 sendto 等与 socket 相关的函数，通过这些函数发出的数据将会走代理</div></pre></td></tr></table></figure>
+<p>  ​</p>
+</li>
+</ul>
+
+          
         
       
     </div>
@@ -523,40 +544,176 @@ socks4/socks5​    socks ： socket 的简写
       
         
           
-          JAVA GC 笔记《深入理解java虚拟机第二版》GC章笔记记录
+            <p>《深入理解java虚拟机第二版》GC章笔记记录<br>description:daadadadadadada </p>
+<h1 id="JAVA-GC-笔记"><a href="#JAVA-GC-笔记" class="headerlink" title="JAVA GC 笔记"></a>JAVA GC 笔记</h1><ul>
+<li><a href="#Jvm内存模型">Jvm内存模型</a><ul>
+<li><a href="#方法区：">方法区</a></li>
+<li><a href="#虚拟机栈：">虚拟机栈</a></li>
+<li><a href="#堆：">堆</a></li>
+<li><a href="#本地方法栈：">本地方法栈</a></li>
+<li><a href="#程序计数器：">程序计数器</a></li>
+</ul>
+</li>
+<li><a href="#GC运作过程">GC处理</a><ul>
+<li><a href="#堆的回收">堆的回收</a><ol>
+<li><a href="#标记垃圾 （有两种做法）">标记垃圾</a></li>
+<li><a href="#清除垃圾算法 （四种做法）">清理垃圾</a></li>
+<li><a href="#垃圾收集器">垃圾收集器</a></li>
+</ol>
+</li>
+<li><a href="#方法区的回收">方法区的回收</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="Jvm内存模型-运行时数据区"><a href="#Jvm内存模型-运行时数据区" class="headerlink" title="Jvm内存模型(运行时数据区)"></a>Jvm内存模型(运行时数据区)</h2><p>主要是对GC算法的笔记，暂时简单带过内存JVM内存模型</p>
+<p>jvm内存模型借用深入理解java虚拟机第2版 的图。<br> <img src="/img/android/gc/memory.png" alt="memory"></p>
+<ul>
+<li><h3 id="方法区："><a href="#方法区：" class="headerlink" title="方法区："></a>方法区：</h3>  线程共享，有人称”永久代”,储存被加载的类信息，常量，静态变量，即时编译后的代码等。包含运行时常量池    </li>
+<li><h3 id="虚拟机栈："><a href="#虚拟机栈：" class="headerlink" title="虚拟机栈："></a>虚拟机栈：</h3><p>  线程私有，一个线程对应一个栈。每个方法执行的时候都会创建一个栈帧，里面有局部变量表(基本类型，对象引用)，操作数栈，方法出口等</p>
+</li>
+<li><h3 id="堆："><a href="#堆：" class="headerlink" title="堆："></a>堆：</h3><p>  最大的区域，大部分new出来的对象都放在这里(随着优化，有的对象会出现栈上分配，运行完方法即销毁),线程共享</p>
+</li>
+<li><h3 id="本地方法栈："><a href="#本地方法栈：" class="headerlink" title="本地方法栈："></a>本地方法栈：</h3><p>  native栈 部分虚拟机把两个栈合并了</p>
+</li>
+<li><h3 id="程序计数器："><a href="#程序计数器：" class="headerlink" title="程序计数器："></a>程序计数器：</h3><p>  每个线程有一个独立的计数器，各个线程独立存储，“线程私有内存”</p>
+<p>​</p>
+</li>
+</ul>
+<hr>
+<h2 id="GC运作过程"><a href="#GC运作过程" class="headerlink" title="GC运作过程"></a>GC运作过程</h2><p>GC 是清理<strong>堆</strong>空间和<strong>方法区</strong>的垃圾。 </p>
+<h3 id="堆的回收"><a href="#堆的回收" class="headerlink" title="堆的回收"></a>堆的回收</h3><p>垃圾清理一般由两个过程（标记垃圾-清理垃圾）</p>
+<ul>
+<li><h4 id="标记垃圾-（有两种做法）"><a href="#标记垃圾-（有两种做法）" class="headerlink" title="标记垃圾 （有两种做法）"></a>标记垃圾 （有两种做法）</h4><ul>
+<li><h5 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h5><ul>
+<li>对象里面加一个计数器，每被引用一次就会+1，效率高，但是会出现循环引用无法回收的情况，比如A引用了B ，B又引用了A。 </li>
+</ul>
+</li>
+<li><h5 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h5><ul>
+<li>从GCRoot开始遍历，被引用到的节点即都是有存活的对象。没引用到的就属于垃圾</li>
+<li>可以作为GC Roots 的对象有以下几个<ol>
+<li>虚拟机栈中引用到的对象。</li>
+<li>方法区中的静态变量引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+<li>本地方法栈中引用的对象 （Native对象）</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="清除垃圾算法-（四种做法）"><a href="#清除垃圾算法-（四种做法）" class="headerlink" title="清除垃圾算法 （四种做法）"></a>清除垃圾算法 （四种做法）</h4><ol>
+<li><p><strong>标记-清除</strong>    （效率不高，空间碎片）</p>
+</li>
+<li><p><strong>复制算法</strong>  （效率高，但是会浪费一半的空间）</p>
+</li>
+<li><p><strong>标记-整理</strong> （不会出现空间碎片的情况）</p>
+</li>
+<li><p><strong>分代收集算法</strong> [新生代GC(minor GC), 老年代GC(Full Gc/Major GC)]</p>
+<p>​</p>
+</li>
+</ol>
+<ul>
+<li><h5 id="标记清除"><a href="#标记清除" class="headerlink" title="标记清除"></a>标记清除</h5><ul>
+<li><p>先标记垃圾， 然后直接清除垃圾 。 </p>
+<p><strong>缺点</strong>：<strong>效率低，会导致出现内存空间碎片，然后new对象申请空间不足，再次GC</strong></p>
+</li>
+</ul>
+</li>
+<li><h5 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h5><ul>
+<li><p>优化标记-清除的效率问题， 复制算法，将内存划分为等量大小块，每次只用一块，GC的时候，把对象迁移到空闲块内存，然后清除原来的一块。 </p>
+<p><strong>缺点：内存浪费一半，由于大部分对象生命周期短，所以可以抽出一个eden去用于缓存，比如新生代的Eden区和两个survival区的比例是8:1:1</strong></p>
+</li>
+</ul>
+</li>
+<li><h5 id="标记-整理"><a href="#标记-整理" class="headerlink" title="标记-整理"></a>标记-整理</h5><ul>
+<li>如果复制算法的时候，对象存活较久，无法回收的话， 会导致需要经常复制太多的对象，影响效率，而且浪费空间。所以有了标记整理算法。先标记 然后再 把有用对象都移动到一起，再清理其他无用对象。</li>
+</ul>
+</li>
+<li><h5 id="分代算法"><a href="#分代算法" class="headerlink" title="分代算法"></a>分代算法</h5><ul>
+<li><p>由于对象的生命周期不同，有的很短，有的很长，所以有了分代算法的思想。分为新生代和老年代默认<strong>空间比例为1：2</strong></p>
+<ul>
+<li><p><strong>新生代</strong></p>
+<ul>
+<li><p>新生代存放的是新建的对象以及小对象</p>
+<p>新生代分为三个区 <strong>Eden</strong>区,<strong>Survival from</strong>, <strong>Survival to</strong> 区。<strong>比例为8:1:1</strong>。 </p>
+<p>new对象的时候，对象先判断eden去是否够放，不够的话则是大对象，直接进入老年代。</p>
+<p>够放则先放入eden区。新生代GC的时候，eden区和from区中有用对象会直接去到to区。其他的清理。 然后from和to区交换角色。 对象经过多次清理无法清除之后，直接进入老年代（一般是15次）。一般这个时候eden区大部分对象会被清除，剩下的或进入to区或被清除。</p>
+<p><strong>注意</strong>：</p>
+<ol>
+<li>新生代太小，会导致太多对象去到老年代。过早引起老年代的GC。</li>
+<li>新生代太大， 会导致新生代中复制时间加长。效率降低。 所以需要一个比较合适的大小</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>老年代</strong></p>
+<ul>
+<li><p>老年代中的对象都是<strong>大对象</strong>或者<strong>生命周期长</strong>的对象。</p>
+<p>一般老年代的GC会浪费很多的时间，老年代一般的清理算法大部分是<strong>标记-整理</strong>或者<strong>标记-清理</strong></p>
+<p>如果老年代中有一个<strong>card table</strong> 用于记录老年代中对新生代中的引用。所以当新生代GC的时候，可以会先查询card table中是否被引用到。</p>
+<p>​</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h4><ul>
+<li>垃圾收集器是清理算法的<strong>具体实现</strong>。简单可以分为 串行，并行，并发</li>
+<li>GC的时候都会<strong>Stop The World</strong>所以收集器是对暂停时间的优化。</li>
+</ul>
+<ol>
+<li><p><strong>串行收集器</strong></p>
+<ol>
+<li><strong>Serial</strong> 最基本、历史最悠久的收集器。 新生代收集器  采用<strong>复制算法</strong></li>
+<li><strong>SerialOld</strong> 老年代收集器  。 <strong>标记 - 整理算法</strong> （作为cms的后备使用）</li>
+</ol>
+</li>
+<li><p><strong>并行收集器</strong>(指的是GC处理过程的并行)</p>
+<ol>
+<li><strong>ParNew</strong> Serial的多线程版本  <strong>复制算法</strong></li>
+<li><strong>ParallelScavenge</strong>     吞吐量优先收集器   <strong>复制算法</strong></li>
+<li><strong>ParallelOld</strong> 简单理解SerialOld的并发版本  <strong>标记 - 整理算法</strong></li>
+</ol>
+</li>
+<li><p><strong>并发收集器</strong> (指的是程序运行，和GC处理一起运行)</p>
+<ol>
+<li><p><strong>CMS</strong> </p>
+<p>​    使用两次短时间的暂停来代替串行或者并行的暂停</p>
+<ol>
+<li>初始标记， 第一次标记 会<strong>Stop The World</strong></li>
+<li>并发标记     后台并发标记垃圾 不会暂停</li>
+<li>重新标记     清理之前的最终确定标记 会  <strong>Stop The World</strong></li>
+<li>并发清理      后台并发清理，由于是并发清理，所以只能采用<strong>标记-清理</strong>算法， 所以会有内存碎片。如果碎片过多，无法再生成对象，则使用<strong>SerialOld</strong>收集器用<strong>标记 - 整理</strong>清理</li>
+<li>并发重置     重置CMS收集器的数据结构，等待下一次垃圾回收。</li>
+</ol>
+</li>
+<li><p><strong>GarbageFirst</strong></p>
+<ol>
+<li><p>G1一个新的垃圾回收器，目标是替换cms，既可以回收<strong>新生代</strong>也可以回收<strong>老年代</strong> </p>
+<p>简单理解就是G1和其他的收集器不同，G1的收集器的内存平均离散分为多个区域。收集的阶段，G1会把有用的对象拷贝一份到其他区域。然后将原区域清理，这样既可以并发，又可以使用<strong>标记-整理</strong>算法</p>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="方法区的回收"><a href="#方法区的回收" class="headerlink" title="方法区的回收"></a>方法区的回收</h3><ul>
+<li>方法区可以不回收，即使回收意义也不大 。主要回收两部分内容：废弃常量和无用的类<br>  废弃常量：<pre><code>字符串&quot;abc&quot;,没有被任何一个string对象引用，也没有其他的引用到它，它就是一个废弃常量
+</code></pre>  无用类的判断<ol>
+<li>该类所有的实例都已经被回收，也就是Java堆中不存在该类的任何实例。</li>
+<li>加载该类的ClassLoader已经被回收。</li>
+<li>该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
 
-Jvm内存模型
-方法区
-虚拟机栈
-堆
-本地方法栈
-程序计数器
-
-
-GC处理
-堆的回收
-标记垃圾
-清理垃圾
-垃圾收集器
-
-
-方法区的回收
-
-
-
-Jvm内存模型(运行时数据区)主要是对GC算法的笔记，暂时简单带过内存JVM内存模型
-jvm内存模型借用深入理解java虚拟机第2版 的图。 
-
-方法区：  线程共享，有人称”永久代”,储存被加载的类信息，常量，静态变量，即时编译后的代码等。包含运行时常量池    
-虚拟机栈：  线程私有，一个线程对应一个栈。每个方法执行的时候都会创建一个栈帧，里面有局部变量表(基本类型，对象引用)，
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/03/31/GC-笔记/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+          
         
       
     </div>
@@ -697,27 +854,94 @@ jvm内存模型借用深入理解java虚拟机第2版 的图。
       
         
           
-          Retrofit 源码笔记记录
-使用
-笔记
-访问逻辑
-简化的逻辑流程
-主要代理的逻辑
-Retrofit
-ServiceMethod
-OKHttpCall
+            <h1 id="Retrofit-源码笔记记录"><a href="#Retrofit-源码笔记记录" class="headerlink" title="Retrofit 源码笔记记录"></a>Retrofit 源码笔记记录</h1><ul>
+<li><a href="#使用过程">使用</a></li>
+<li><a href="#笔记：">笔记</a><ul>
+<li><a href="#访问逻辑">访问逻辑</a></li>
+<li><a href="#简单流程。">简化的逻辑流程</a></li>
+<li><a href="#代理的逻辑">主要代理的逻辑</a></li>
+<li><a href="#Retrofit">Retrofit</a></li>
+<li><a href="#ServiceMethod">ServiceMethod</a></li>
+<li><a href="#OKHttpCall">OKHttpCall</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="使用过程"><a href="#使用过程" class="headerlink" title="使用过程"></a>使用过程</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//定义访问接口 </span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</div><div class="line">  <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</div><div class="line">  Call&lt;List&lt;Repo&gt;&gt; listRepos(<span class="meta">@Path</span>(<span class="string">"user"</span>) String user);</div><div class="line">&#125;</div><div class="line"><span class="comment">//初始化Retrofit的配置</span></div><div class="line">Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">    .baseUrl(<span class="string">"https://api.github.com/"</span>)</div><div class="line">    .build();</div><div class="line"><span class="comment">//create生成接口的空实现类</span></div><div class="line">GitHubService service = retrofit.create(GitHubService.class);</div><div class="line"><span class="comment">//执行返回最终的执行类</span></div><div class="line">Call&lt;List&lt;Repo&gt;&gt; repos = service.listRepos(<span class="string">"octocat"</span>);</div></pre></td></tr></table></figure>
+<h3 id="笔记："><a href="#笔记：" class="headerlink" title="笔记："></a>笔记：</h3><ul>
+<li><h4 id="访问逻辑"><a href="#访问逻辑" class="headerlink" title="访问逻辑"></a>访问逻辑</h4><ul>
+<li>Android端的逻辑<ul>
+<li>初始化retrofit，初始化android的adapter (ExecutorCallAdapterFactory),数据格式解析器等。 </li>
+<li>动态代理create返回一个空实现的ApiServices,</li>
+<li>代理ApiServices的方法，当运行到的时候,根据方法的属性，生成一个ServiceMethod。初始化一个okhttpCall。 用serviceMethod根据returnType去所有adapterFactories列表里面找出当前需要的设配器ExecutorCallAdapterFactory/RxJavaCallAdapterFactory/等,并将okhttpCall适配成Call(ExecutorCallbackCall)/Observable(有多个)/等其他的</li>
+<li>开始访问数据enqueue/ExecutorCallbackCall(里面代理了okhttpcall)将数据通过数据解析器的requestConverter生成okhttp.request请求,并返回,再通过数据解析器的responseConverter将response解析成需要的数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><h4 id="简单流程。"><a href="#简单流程。" class="headerlink" title="简单流程。"></a>简单流程。</h4><ul>
+<li><p>初始化Retrofit 将可配置项配置完整。 初始化平台相关的回调执行者。比如android的enqueue的话就是异步操作，然后在主线程返回。 之类的一些初始化操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Handler(Looper.getMainLooper()).post(r)</div></pre></td></tr></table></figure>
+</li>
+<li><p>通过<strong>create(Class clz)</strong> 方法 使用动态代理生成一个访问接口<strong>GitHubService</strong> 的 空实现类。</p>
+</li>
+<li><p>此时动态代理已经代理了 <strong>GitHubService</strong> 的方法。 调用<strong>listRepos(“”)</strong>方法时动态代理会根据这个方法的 注解<strong>@GET(“users/{user}/repos”)</strong>，方法参数<strong>@Path(“user”)</strong>，返回类型<strong>Call</strong>。转化为请求所需要的数据， 并返回一个  实际的<strong>Call</strong>或者其他的<strong>Observable</strong>等之类的对象。 </p>
+</li>
+<li><p>整个流程 翻译成最简单的 逻辑为： <img src="/img/android/retrofit_proxy.png" alt="proxy"></p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><h4 id="代理的逻辑"><a href="#代理的逻辑" class="headerlink" title="代理的逻辑"></a>代理的逻辑</h4><p><img src="/img/android/retrofit_proxy1.png" alt="proxy1"></p>
+<ul>
+<li><p>如果是Object的方法  比如.hashCode()之类的。 就直接返回了原来的逻辑。</p>
+</li>
+<li><p>因为Retrofit 是Java/Android 的请求封装库，所以有Platform这个平台类，并根据平台出来。</p>
+</li>
+<li><p><strong>ServiceMethod</strong> 代表每一个正在运行中的方法。会先去缓存中拿，如果没有。就根据Retrofit中的<strong>baseUrl</strong>等配置项跟当前<strong>method</strong>的注解,参数等生成请求时需要的参数。所以注解基本都是在<strong>ServiceMethod</strong>里面操作</p>
+</li>
+<li><p>根据serviceMethod里面的请求地址，类型， 参数。既可以new一个网络执行类<strong>OkHttpCall</strong>。这是Retrofit封装的一个Call，里面实际就是在操作<strong>okhttp</strong>的okhttp3.Call</p>
+</li>
+<li><p>因为最终有可能是返回<strong>Call</strong>或<strong>Observable</strong>，所有需要会有一个<strong>adapterFactories</strong>的列表，serviceMethod 根据<strong>returnType</strong>去这个设配器列表中取出某一个设配器，执行适配方法将Call 适配成returnType 所需要的Call/Observable/或者是其他的。 </p>
+<ul>
+<li><p>注 最后两个有点绕。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//因为servicesMethod 里面有请求的地址，方法，参数等。 所以需要serviceMethod的数据去生成一个网络执行者出来。  </span></div><div class="line">OkHttpCall&lt;Object&gt; okHttpCall = <span class="keyword">new</span> OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line"><span class="comment">//又因为serviceMethod里面有返回的类型， 所以又需要将call 去serviceMethod里面适配一次</span></div><div class="line"> serviceMethod.callAdapter.adapt(okHttpCall);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="Retrofit"><a href="#Retrofit" class="headerlink" title="Retrofit"></a>Retrofit</h4><ul>
+<li>这里是个门面模式 只需要知道可配置的项的作用即可<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//用户配置的okHttpClient，若没有配置则会默认new okHttpClient</span></div><div class="line"><span class="keyword">final</span> okhttp3.Call.Factory callFactory;</div><div class="line"><span class="keyword">final</span> HttpUrl baseUrl; </div><div class="line"><span class="comment">//数据解析器 用于解析Gson，Xml，Protobuf 等，里面会有responseBodyConverter，返回数据的解析，以及requestBodyConverter，提交参数的转化</span></div><div class="line"><span class="keyword">final</span> List&lt;Converter.Factory&gt; converterFactories;</div><div class="line"></div><div class="line"><span class="comment">//自定义Call的设配器,用于将OkHttpCall解析成需要的执行者,每一个PlatForm 都有对应一个 adapterFactor 将执行者Call适配成 android 的Call 或者 RxJava的Observable。这里Android会默认生产一个 ExecutorCallAdapterFactory</span></div><div class="line"><span class="keyword">final</span> List&lt;CallAdapter.Factory&gt; adapterFactories;</div><div class="line"></div><div class="line"><span class="comment">//自定义的executor，若无配置，则每个platform有一个默认的， 比如android的Ececutor 为 </span></div><div class="line"><span class="comment">//  static class MainThreadExecutor implements Executor &#123;</span></div><div class="line"><span class="comment">//      private final Handler handler = new Handler(Looper.getMainLooper());</span></div><div class="line"><span class="comment">//      @Override public void execute(Runnable r) &#123;</span></div><div class="line"><span class="comment">//        handler.post(r);</span></div><div class="line"><span class="comment">//      &#125;</span></div><div class="line"><span class="comment">//    &#125;</span></div><div class="line"><span class="keyword">final</span> Executor callbackExecutor;</div><div class="line"></div><div class="line"><span class="comment">//是否提前将方法解析成serviceMethod。true的时候在create()的时候就都解析到缓存中了。 false 的时候则是运行 接口的方法的时候在解析。</span></div><div class="line"><span class="keyword">final</span> <span class="keyword">boolean</span> validateEagerly; ServiceMethod</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><h4 id="ServiceMethod"><a href="#ServiceMethod" class="headerlink" title="ServiceMethod"></a>ServiceMethod</h4><ul>
+<li><p>每一个Api的 接口 都会对应一个 serviceMethod，在里面解析 当前method的 注解，参数，返回类型。</p>
+<ul>
+<li><h5 id="build初始化解析"><a href="#build初始化解析" class="headerlink" title="build初始化解析"></a>build初始化解析</h5>  这里的逻辑是先在解析器列表中取出当前需要的解析器，然后解析当前的访问形式GET.POST….取出参数然后使用<strong>Converter.Factory</strong> 里面的<strong>requestBodyConverter</strong>去将参数解析成需要的类型比如Json，Xml等。将数据初始化在ParameterHandler的列表中 </li>
+</ul>
+<ul>
+<li><h5 id="方法toRequest-Object…-args"><a href="#方法toRequest-Object…-args" class="headerlink" title="方法toRequest(Object… args)"></a>方法<strong>toRequest(Object… args)</strong></h5><p>  根据每一个参数去<strong>ParameterHandler</strong>列表(这个用的是策略模式，分别有Header，body，query，RelativeUrl等的ParameterHandler解析器）。将解析完的数据放到RequestBuilder中。最终requestBuild去build出<strong>Okhttp.Request</strong>。           </p>
+</li>
+<li><h5 id="方法toResponse-ResponseBody-body"><a href="#方法toResponse-ResponseBody-body" class="headerlink" title="方法toResponse(ResponseBody body)"></a>方法<strong>toResponse(ResponseBody body)</strong></h5><p>将OKhttp的ResponseBody 通过用户配置的<strong>Converter.Factory</strong> 里面的<strong>Converter.Factory</strong> 将数据解析成泛型Bean。比如Gson的解析器为GsonResponseBodyConverter</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="OKHttpCall"><a href="#OKHttpCall" class="headerlink" title="OKHttpCall"></a><strong>OKHttpCall</strong></h4><ul>
+<li>retrofit封装的一个call ，用于直接去操作okhttpCall<ul>
+<li>里面的逻辑就是直接去根据serviceMethod拿到的request以及外面配置进来（或者默认生生成）的okhttpclient，去生成一个okhttpcall，请求完会先对response做一次简单处理，然后直接交给serviceMethod里面去处理返回需要的对象。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-
-
-使用过程12345678910111213//定义访问接口 public interface GitHubService &#123;  @GET("users/&#123;user&#125;/repos")  Call&lt;List&lt;Repo&gt;&gt; listRepos(@Path("user") String user);&#125;//初始化Retrofit的配置Retrofit retrofit = new R
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/03/26/retrofit2-2-源码笔记/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+          
         
       
     </div>
