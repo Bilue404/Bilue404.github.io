@@ -87,18 +87,18 @@
 
 
 
-<meta name="description" content="《深入理解java虚拟机第二版》GC章笔记记录description:daadadadadadada  JAVA GC 笔记 Jvm内存模型 方法区 虚拟机栈 堆 本地方法栈 程序计数器   GC处理 堆的回收 标记垃圾 清理垃圾 垃圾收集器   方法区的回收    Jvm内存模型(运行时数据区)主要是对GC算法的笔记，暂时简单带过内存JVM内存模型 jvm内存模型借用深入理解java虚拟机第2版">
+<meta name="description" content="《深入理解java虚拟机第二版》GC章笔记记录GC 算法的总结 整理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JAVA GC 笔记">
 <meta property="og:url" content="https://bilue404.github.io/2017/03/31/GC-笔记/index.html">
 <meta property="og:site_name" content="北陆，向前走">
-<meta property="og:description" content="《深入理解java虚拟机第二版》GC章笔记记录description:daadadadadadada  JAVA GC 笔记 Jvm内存模型 方法区 虚拟机栈 堆 本地方法栈 程序计数器   GC处理 堆的回收 标记垃圾 清理垃圾 垃圾收集器   方法区的回收    Jvm内存模型(运行时数据区)主要是对GC算法的笔记，暂时简单带过内存JVM内存模型 jvm内存模型借用深入理解java虚拟机第2版">
+<meta property="og:description" content="《深入理解java虚拟机第二版》GC章笔记记录GC 算法的总结 整理">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://bilue404.github.io/img/android/gc/memory.png">
-<meta property="og:updated_time" content="2017-09-29T08:00:03.092Z">
+<meta property="og:updated_time" content="2017-09-29T08:12:46.387Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JAVA GC 笔记">
-<meta name="twitter:description" content="《深入理解java虚拟机第二版》GC章笔记记录description:daadadadadadada  JAVA GC 笔记 Jvm内存模型 方法区 虚拟机栈 堆 本地方法栈 程序计数器   GC处理 堆的回收 标记垃圾 清理垃圾 垃圾收集器   方法区的回收    Jvm内存模型(运行时数据区)主要是对GC算法的笔记，暂时简单带过内存JVM内存模型 jvm内存模型借用深入理解java虚拟机第2版">
+<meta name="twitter:description" content="《深入理解java虚拟机第二版》GC章笔记记录GC 算法的总结 整理">
 <meta name="twitter:image" content="https://bilue404.github.io/img/android/gc/memory.png">
 
 
@@ -366,8 +366,8 @@
       
 
       
-        <p>《深入理解java虚拟机第二版》GC章笔记记录<br>description:daadadadadadada </p>
-<h1 id="JAVA-GC-笔记"><a href="#JAVA-GC-笔记" class="headerlink" title="JAVA GC 笔记"></a>JAVA GC 笔记</h1><ul>
+        <p>《深入理解java虚拟机第二版》GC章笔记记录<br>GC 算法的总结 整理<br><a id="more"></a> </p>
+<ul>
 <li><a href="#Jvm内存模型">Jvm内存模型</a><ul>
 <li><a href="#方法区：">方法区</a></li>
 <li><a href="#虚拟机栈：">虚拟机栈</a></li>
@@ -702,7 +702,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JAVA-GC-笔记"><span class="nav-number">1.</span> <span class="nav-text">JAVA GC 笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm内存模型-运行时数据区"><span class="nav-number">1.1.</span> <span class="nav-text">Jvm内存模型(运行时数据区)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区："><span class="nav-number">1.1.1.</span> <span class="nav-text">方法区：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟机栈："><span class="nav-number">1.1.2.</span> <span class="nav-text">虚拟机栈：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆："><span class="nav-number">1.1.3.</span> <span class="nav-text">堆：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈："><span class="nav-number">1.1.4.</span> <span class="nav-text">本地方法栈：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#程序计数器："><span class="nav-number">1.1.5.</span> <span class="nav-text">程序计数器：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC运作过程"><span class="nav-number">1.2.</span> <span class="nav-text">GC运作过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#堆的回收"><span class="nav-number">1.2.1.</span> <span class="nav-text">堆的回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#标记垃圾-（有两种做法）"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">标记垃圾 （有两种做法）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#引用计数法"><span class="nav-number">1.2.1.1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可达性分析算法"><span class="nav-number">1.2.1.1.2.</span> <span class="nav-text">可达性分析算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#清除垃圾算法-（四种做法）"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">清除垃圾算法 （四种做法）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#标记清除"><span class="nav-number">1.2.1.2.1.</span> <span class="nav-text">标记清除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#复制算法"><span class="nav-number">1.2.1.2.2.</span> <span class="nav-text">复制算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#标记-整理"><span class="nav-number">1.2.1.2.3.</span> <span class="nav-text">标记-整理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分代算法"><span class="nav-number">1.2.1.2.4.</span> <span class="nav-text">分代算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集器"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">垃圾收集器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区的回收"><span class="nav-number">1.2.2.</span> <span class="nav-text">方法区的回收</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Jvm内存模型-运行时数据区"><span class="nav-number">1.</span> <span class="nav-text">Jvm内存模型(运行时数据区)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区："><span class="nav-number">1.1.</span> <span class="nav-text">方法区：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟机栈："><span class="nav-number">1.2.</span> <span class="nav-text">虚拟机栈：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆："><span class="nav-number">1.3.</span> <span class="nav-text">堆：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈："><span class="nav-number">1.4.</span> <span class="nav-text">本地方法栈：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#程序计数器："><span class="nav-number">1.5.</span> <span class="nav-text">程序计数器：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GC运作过程"><span class="nav-number">2.</span> <span class="nav-text">GC运作过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#堆的回收"><span class="nav-number">2.1.</span> <span class="nav-text">堆的回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#标记垃圾-（有两种做法）"><span class="nav-number">2.1.1.</span> <span class="nav-text">标记垃圾 （有两种做法）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.1.1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可达性分析算法"><span class="nav-number">2.1.1.2.</span> <span class="nav-text">可达性分析算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#清除垃圾算法-（四种做法）"><span class="nav-number">2.1.2.</span> <span class="nav-text">清除垃圾算法 （四种做法）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#标记清除"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">标记清除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#复制算法"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">复制算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#标记-整理"><span class="nav-number">2.1.2.3.</span> <span class="nav-text">标记-整理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分代算法"><span class="nav-number">2.1.2.4.</span> <span class="nav-text">分代算法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#垃圾收集器"><span class="nav-number">2.1.3.</span> <span class="nav-text">垃圾收集器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区的回收"><span class="nav-number">2.2.</span> <span class="nav-text">方法区的回收</span></a></li></ol></li></ol></div>
             
 
           </div>
